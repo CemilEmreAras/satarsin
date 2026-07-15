@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // LANDING PAGE LOGIC (index.html)
 // ==========================================
 function initLandingPage() {
-    const openModalBtn = document.getElementById('open-sell-modal');
+    const openModalBtns = document.querySelectorAll('#open-sell-modal, #open-sell-modal-2');
     const closeModalBtn = document.getElementById('close-sell-modal');
     const modal = document.getElementById('sell-modal');
     const form = document.getElementById('car-upload-form');
@@ -37,11 +37,24 @@ function initLandingPage() {
 
     let selectedFiles = []; // Sıkıştırılmış Base64 görsel verilerini tutar
 
+    // Model yılı seçeneklerini dinamik oluştur (Gelecek yıl dahil 1970'e kadar)
+    const yearSelect = document.getElementById('car-year');
+    if (yearSelect) {
+        let yearsHtml = '<option value="" disabled selected>Seçin</option>';
+        const maxYear = new Date().getFullYear() + 1;
+        for (let y = maxYear; y >= 1970; y--) {
+            yearsHtml += `<option value="${y}">${y}</option>`;
+        }
+        yearSelect.innerHTML = yearsHtml;
+    }
+
     // Modal aç / kapat
-    if (openModalBtn && modal) {
-        openModalBtn.addEventListener('click', () => {
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+    if (openModalBtns.length > 0 && modal) {
+        openModalBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
         });
     }
 
@@ -55,14 +68,6 @@ function initLandingPage() {
         });
     }
 
-    // Modal dışına tıklandığında kapatma
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModalBtn.click();
-            }
-        });
-    }
 
     // Dosya seçimi ve sıkıştırma
     if (fileInput) {

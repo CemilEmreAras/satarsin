@@ -1556,3 +1556,36 @@ body {
     margin-bottom: 16px;
 }
 
+/* Mobil Cihazlar İçin Form ve Modal Responsive Düzeltmeleri */
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .modal-container {
+        padding: 24px 16px;
+        border-radius: 20px;
+        width: 95%;
+        margin: 10px;
+    }
+    .modal-close-btn {
+        top: 16px;
+        right: 16px;
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+    .modal-title {
+        font-size: 1.5rem;
+        margin-top: 10px;
+    }
+    .modal-subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+    }
+    .form-group {
+        margin-bottom: 14px;
+    }
+}
+
+
