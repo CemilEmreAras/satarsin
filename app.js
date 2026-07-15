@@ -68,6 +68,21 @@ function initLandingPage() {
         });
     }
 
+    // Telefon inputuna tıklandığında otomatik '0' ekleme
+    const phoneInput = document.getElementById('seller-phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('focus', () => {
+            if (phoneInput.value.trim() === '') {
+                phoneInput.value = '0';
+            }
+        });
+        phoneInput.addEventListener('blur', () => {
+            if (phoneInput.value.trim() === '0') {
+                phoneInput.value = '';
+            }
+        });
+    }
+
 
     // Dosya seçimi ve sıkıştırma
     if (fileInput) {
