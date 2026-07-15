@@ -68,13 +68,18 @@ function initLandingPage() {
         });
     }
 
-    // Telefon inputuna tıklandığında otomatik '0' ekleme
+    // Telefon inputuna tıklandığında otomatik '0' ekleme ve imleci sona taşıma
     const phoneInput = document.getElementById('seller-phone');
     if (phoneInput) {
         phoneInput.addEventListener('focus', () => {
             if (phoneInput.value.trim() === '') {
                 phoneInput.value = '0';
             }
+            // İmleci (kürsör) sıfırın sağına (sona) yerleştir
+            setTimeout(() => {
+                const valLength = phoneInput.value.length;
+                phoneInput.setSelectionRange(valLength, valLength);
+            }, 10);
         });
         phoneInput.addEventListener('blur', () => {
             if (phoneInput.value.trim() === '0') {
