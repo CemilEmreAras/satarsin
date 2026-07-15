@@ -32,6 +32,9 @@
             <div class="nav-links">
                 <a href="#nasil-calisir" class="nav-link">Nasıl Çalışır?</a>
                 <a href="#neden-biz" class="nav-link">Hakkımızda</a>
+                <button id="open-sell-modal" class="btn-nav-whatsapp" style="background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark)); color: #000000; border: none; font-weight: 700; cursor: pointer;">
+                    <i class="fa-solid fa-car"></i> Aracını Sat
+                </button>
                 <a href="https://whatsapp.com/channel/0029VbD8ByE1NCrdySn50k1u" target="_blank" rel="noopener noreferrer" class="btn-nav-whatsapp">
                     <i class="fa-brands fa-whatsapp"></i> Hızlı İletişim
                 </a>
@@ -219,7 +222,114 @@
             <p class="footer-copyright">&copy; 2026 sa₺arsın.com.tr. Tüm hakları saklıdır. Bu site kurumsal bir WhatsApp topluluğuna yönlendirme platformudur.</p>
         </div>
     </footer>
+    <!-- Araba Ekleme Modalı -->
+    <div id="sell-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button id="close-sell-modal" class="modal-close-btn">&times;</button>
+            <h3 class="modal-title">Aracını Sat</h3>
+            <p class="modal-subtitle">Aşağıdaki bilgileri eksiksiz doldurarak ilanınızı sisteme ekleyin. İlanınız onaylandıktan sonra WhatsApp grubumuzda paylaşılacaktır.</p>
+            
+            <form id="car-upload-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="car-brand-model">Marka Model</label>
+                        <input type="text" id="car-brand-model" class="form-control" placeholder="Örn: FİAT / LİNEA" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="car-year">Model Yılı</label>
+                        <input type="number" id="car-year" class="form-control" placeholder="Örn: 2008" min="1950" max="2030" required>
+                    </div>
+                </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="car-fuel">Yakıt</label>
+                        <input type="text" id="car-fuel" class="form-control" placeholder="Örn: Benzin & LPG" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="car-transmission">Vites</label>
+                        <select id="car-transmission" class="form-control" required>
+                            <option value="" disabled selected>Seçin</option>
+                            <option value="Manuel">Manuel</option>
+                            <option value="Otomatik">Otomatik</option>
+                            <option value="Yarı Otomatik">Yarı Otomatik</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="car-city">Şehir</label>
+                        <input type="text" id="car-city" class="form-control" placeholder="Örn: Mardin" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="car-km">Kilometre (Km)</label>
+                        <input type="text" id="car-km" class="form-control" placeholder="Örn: 185.000" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="car-paint">Boya</label>
+                        <input type="text" id="car-paint" class="form-control" placeholder="Örn: Bagajda Lokal Boya" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="car-replaced">Değişen</label>
+                        <input type="text" id="car-replaced" class="form-control" placeholder="Örn: Yok veya Sol kapı" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="car-tramer">Tramer</label>
+                        <input type="text" id="car-tramer" class="form-control" placeholder="Örn: 451 TL veya Hasar Kaydı Yok" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="car-price">Fiyat (TL)</label>
+                        <input type="number" id="car-price" class="form-control" placeholder="Örn: 420000" min="0" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label" for="seller-phone">İletişim Numarası</label>
+                        <input type="tel" id="seller-phone" class="form-control" placeholder="Örn: 0530 899 76 26" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="car-description">Genel Açıklama</label>
+                    <textarea id="car-description" class="form-control" rows="3" placeholder="Araç hakkında eklemek istediğiniz diğer detaylar (Bakım durumu, masraf durumu vb.)..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Araç Fotoğrafları (En fazla 5 adet)</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="car-images" class="file-upload-input" accept="image/*" multiple>
+                        <div class="file-upload-text">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <h4>Resim Seçin veya Sürükleyin</h4>
+                            <p>En fazla 5 görsel yükleyebilirsiniz. İlk seçilen resim kapak resmi olacaktır.</p>
+                        </div>
+                    </div>
+                    <div id="image-preview-container" class="image-preview-gallery"></div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" id="submit-car-btn" class="btn-form-submit">
+                        <span class="btn-text"><i class="fa-solid fa-paper-plane"></i> Aracımı Gönder</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Config & Scripts -->
+    <script src="firebase-config.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

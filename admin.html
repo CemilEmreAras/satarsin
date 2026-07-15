@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sa₺arsın - Yönetici Paneli</title>
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-page">
+
+    <!-- Şifre Giriş Ekranı (Auth Overlay) -->
+    <div id="admin-auth-overlay" class="auth-overlay">
+        <div class="auth-container">
+            <img src="logo.jpg" alt="Sa₺arsın Logo" class="auth-logo">
+            <h2 class="auth-title">Yönetici Girişi</h2>
+            <form id="admin-login-form">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <input type="password" id="admin-password" class="form-control" placeholder="Giriş Şifresi" style="text-align: center;" required>
+                </div>
+                <button type="submit" class="btn-form-submit">Giriş Yap</button>
+                <p id="auth-error-msg" style="color: #ff4a4a; font-size: 0.85rem; margin-top: 12px; display: none;">Hatalı şifre girdiniz!</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Paneli Ana İçerik -->
+    <header class="admin-header">
+        <div class="admin-container">
+            <nav class="admin-nav">
+                <div class="admin-brand">
+                    <span>sa₺arsın</span><span class="brand-gold">.admin</span>
+                </div>
+                <button id="admin-logout-btn" class="admin-logout">
+                    <i class="fa-solid fa-right-from-bracket"></i> Güvenli Çıkış
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        <div class="admin-grid">
+            <!-- Sol Taraf: İlanlar Listesi -->
+            <section class="listings-section">
+                <div class="listings-title-bar">
+                    <h2>Gelen İlan Talepleri</h2>
+                    <span id="listings-count" style="background: rgba(213, 176, 76, 0.15); color: var(--gold-primary); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700;">0 İlan</span>
+                </div>
+
+                <div id="listings-container" class="listings-grid">
+                    <!-- Dinamik olarak doldurulacak -->
+                    <div class="empty-state">
+                        <i class="fa-solid fa-hourglass-empty"></i>
+                        <p>Henüz yüklenmiş bir ilan bulunmuyor.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sağ Taraf: API ve Sistem Ayarları -->
+            <aside class="settings-sidebar">
+                <div class="settings-panel">
+                    <h3><i class="fa-solid fa-gears"></i> WhatsApp API Ayarları</h3>
+                    
+                    <form id="settings-form">
+                        <div class="form-group">
+                            <label class="form-label" for="api-provider">Servis Sağlayıcı</label>
+                            <select id="api-provider" class="form-control">
+                                <option value="green-api">Green-API (Önerilen)</option>
+                                <option value="ultramsg">Ultramsg</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" id="label-instance">Instance ID</label>
+                            <input type="text" id="api-instance-id" class="form-control" placeholder="Örn: 1101823902">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" id="label-token">API Token / Key</label>
+                            <input type="password" id="api-token" class="form-control" placeholder="API Token değeriniz">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="api-chat-id">WhatsApp Grup ID</label>
+                            <input type="text" id="api-chat-id" class="form-control" placeholder="Örn: 12036329482938@g.us">
+                            <small style="color: rgba(255,255,255,0.4); font-size: 0.75rem;">Grup ID'sini API panelinizden alabilirsiniz.</small>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 15px 0;">
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="settings-admin-password">Panel Giriş Şifresi</label>
+                            <input type="password" id="settings-admin-password" class="form-control" placeholder="Yeni Giriş Şifresi">
+                        </div>
+                        
+                        <button type="submit" class="btn-settings-save" style="width: 100%; margin-top: 10px;">Ayarları Kaydet</button>
+                    </form>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Config & Script -->
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
