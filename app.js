@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // LANDING PAGE LOGIC (index.html)
 // ==========================================
 function initLandingPage() {
-    const openModalBtns = document.querySelectorAll('#open-sell-modal, #open-sell-modal-2');
+    const openModalBtns = document.querySelectorAll('#open-sell-modal, #open-sell-modal-2, #open-sell-modal-3');
     const closeModalBtn = document.getElementById('close-sell-modal');
     const modal = document.getElementById('sell-modal');
     const form = document.getElementById('car-upload-form');
