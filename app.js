@@ -165,7 +165,13 @@ function initLandingPage() {
                     replaced: document.getElementById('car-replaced').value.trim(),
                     tramer: document.getElementById('car-tramer').value.trim(),
                     price: parseFloat(document.getElementById('car-price').value),
-                    sellerPhone: document.getElementById('seller-phone').value.trim(),
+                    sellerPhone: (() => {
+                        let phone = document.getElementById('seller-phone').value.trim();
+                        if (phone && !phone.startsWith('0')) {
+                            phone = '0' + phone;
+                        }
+                        return phone;
+                    })(),
                     description: document.getElementById('car-description').value.trim(),
                     images: imageUrls,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -441,6 +447,12 @@ window.publishToListing = async function(id) {
         const data = doc.data();
         const formattedPrice = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 }).format(data.price);
 
+        // Telefon numarasını başında 0 olacak şekilde formatla
+        let formattedPhone = data.sellerPhone || '-';
+        if (formattedPhone !== '-' && !formattedPhone.startsWith('0')) {
+            formattedPhone = '0' + formattedPhone;
+        }
+
         // WhatsApp mesaj metnini hazırla (Kullanıcının Şablonu ile)
         const messageText = 
 `🚗 *Marka Model:* ${data.brandModel || '-'}
@@ -453,7 +465,7 @@ window.publishToListing = async function(id) {
 🔧 *Değişen:* ${data.replaced || '-'}
 💥 *Tramer:* ${data.tramer || '-'}
 💰 *Fiyat:* ${formattedPrice}
-📞 *İletişim:* ${data.sellerPhone || '-'}
+📞 *İletişim:* ${formattedPhone}
 
 📝 *Genel açıklama :* ${data.description || '-'}`;
 
