@@ -804,9 +804,8 @@ function base64ToBlob(base64Data, contentType = 'image/jpeg') {
 async function sendGreenApiImage(instanceId, token, chatId, imageUrl, caption) {
     let url, response;
     
-    // Green-API'de host adresi Instance ID'nizin ilk 4 hanesinden oluşur (Örn: 7107.media.greenapi.com)
-    const hostPrefix = instanceId.substring(0, 4);
-    const mediaUrl = `https://${hostPrefix}.media.greenapi.com`;
+    // Green-API genel medya sunucusu (DNS çözümleme hatasını önlemek için)
+    const mediaUrl = `https://media.greenapi.com`;
     
     // Eğer resim yerel veya bağıl bir yol ise (örn: logo.jpg), bunu tam URL'e çevirelim
     if (!imageUrl.startsWith('data:') && !imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
