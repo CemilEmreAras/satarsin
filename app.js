@@ -385,30 +385,67 @@ function initAdminPage() {
         });
     }
 
-    // 1. ŞİFRE GÜVENLİK VE GİRİŞ KONTROLLERİ
-    const getStoredPassword = () => localStorage.getItem('admin_pass') || '12345';
-    
-    // Zaten giriş yapılmış mı kontrol et
-    if (sessionStorage.getItem('admin_logged') === 'true') {
-        authOverlay.style.display = 'none';
-        loadAdminPanel();
+    // 1. AYARLARI FİREBASE'DEN ÇEK VE YÜKLE
+    let systemConfig = {
+        apiProvider: 'green-api',
+        apiInstanceId: '',
+        apiToken: '',
+        apiChatId: '',
+        adminPass: '12345'
+    };
+
+    const loginSubmitBtn = loginForm ? loginForm.querySelector('.btn-form-submit') : null;
+    const originalLoginBtnText = loginSubmitBtn ? loginSubmitBtn.innerHTML : '';
+
+    if (loginSubmitBtn) {
+        loginSubmitBtn.disabled = true;
+        loginSubmitBtn.innerHTML = '<span class="spinner"></span> Yükleniyor...';
     }
 
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const inputPass = passwordInput.value;
-            if (inputPass === getStoredPassword()) {
-                sessionStorage.setItem('admin_logged', 'true');
-                authOverlay.style.display = 'none';
-                authErrorMsg.style.display = 'none';
-                loadAdminPanel();
+    async function loadConfig() {
+        if (!db) return;
+        try {
+            const doc = await db.collection('settings').doc('config').get();
+            if (doc.exists) {
+                systemConfig = doc.data();
             } else {
-                authErrorMsg.style.display = 'block';
-                passwordInput.value = '';
+                // Varsayılan ayarları oluştur
+                await db.collection('settings').doc('config').set(systemConfig);
             }
-        });
+        } catch (err) {
+            console.error("Sistem ayarları yüklenemedi:", err);
+        }
     }
+
+    // Firebase'den ayarlar yüklendikten sonra kontrolü yap
+    loadConfig().then(() => {
+        if (loginSubmitBtn) {
+            loginSubmitBtn.disabled = false;
+            loginSubmitBtn.innerHTML = originalLoginBtnText;
+        }
+
+        // Zaten giriş yapılmış mı kontrol et
+        if (sessionStorage.getItem('admin_logged') === 'true') {
+            authOverlay.style.display = 'none';
+            loadAdminPanel();
+        }
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const inputPass = passwordInput.value;
+                if (inputPass === (systemConfig.adminPass || '12345')) {
+                    sessionStorage.setItem('admin_logged', 'true');
+                    authOverlay.style.display = 'none';
+                    authErrorMsg.style.display = 'none';
+                    loadAdminPanel();
+                } else {
+                    authErrorMsg.style.display = 'block';
+                    passwordInput.value = '';
+                }
+            });
+        }
+    });
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
@@ -419,28 +456,40 @@ function initAdminPage() {
 
     // 2. PANEL ANA İŞLEVLERİ YÜKLE
     function loadAdminPanel() {
-        // Ayarları LocalStorage'dan form alanlarına yükle
-        document.getElementById('api-provider').value = localStorage.getItem('api_provider') || 'green-api';
-        document.getElementById('api-instance-id').value = localStorage.getItem('api_instance_id') || '';
-        document.getElementById('api-token').value = localStorage.getItem('api_token') || '';
-        document.getElementById('api-chat-id').value = localStorage.getItem('api_chat_id') || '';
-        document.getElementById('settings-admin-password').value = getStoredPassword();
+        // Ayarları Firebase'den gelen verilerle form alanlarına yükle
+        document.getElementById('api-provider').value = systemConfig.apiProvider || 'green-api';
+        document.getElementById('api-instance-id').value = systemConfig.apiInstanceId || '';
+        document.getElementById('api-token').value = systemConfig.apiToken || '';
+        document.getElementById('api-chat-id').value = systemConfig.apiChatId || '';
+        document.getElementById('settings-admin-password').value = systemConfig.adminPass || '12345';
 
         // Ayarları Kaydetme
         if (settingsForm) {
-            settingsForm.addEventListener('submit', (e) => {
+            settingsForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                localStorage.setItem('api_provider', document.getElementById('api-provider').value);
-                localStorage.setItem('api_instance_id', document.getElementById('api-instance-id').value.trim());
-                localStorage.setItem('api_token', document.getElementById('api-token').value.trim());
-                localStorage.setItem('api_chat_id', document.getElementById('api-chat-id').value.trim());
-                
-                const newPass = document.getElementById('settings-admin-password').value.trim();
-                if (newPass) {
-                    localStorage.setItem('admin_pass', newPass);
-                }
+                const saveBtn = settingsForm.querySelector('.btn-settings-save');
+                const origText = saveBtn.innerText;
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<span class="spinner"></span> Kaydediliyor...';
 
-                alert('Ayarlar başarıyla kaydedildi.');
+                systemConfig = {
+                    apiProvider: document.getElementById('api-provider').value,
+                    apiInstanceId: document.getElementById('api-instance-id').value.trim(),
+                    apiToken: document.getElementById('api-token').value.trim(),
+                    apiChatId: document.getElementById('api-chat-id').value.trim(),
+                    adminPass: document.getElementById('settings-admin-password').value.trim() || '12345'
+                };
+
+                try {
+                    await db.collection('settings').doc('config').set(systemConfig);
+                    alert('Ayarlar veritabanına başarıyla kaydedildi.');
+                } catch (err) {
+                    console.error("Ayarlar kaydedilemedi:", err);
+                    alert("Ayarlar kaydedilirken hata oluştu: " + err.message);
+                } finally {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = origText;
+                }
             });
         }
 
@@ -645,11 +694,24 @@ window.deleteListing = async function(id) {
 
 // İlanı WhatsApp Grubunda Paylaş
 window.publishToListing = async function(id) {
-    // API Ayarlarını oku
-    const apiProvider = localStorage.getItem('api_provider') || 'green-api';
-    const instanceId = localStorage.getItem('api_instance_id');
-    const token = localStorage.getItem('api_token');
-    const chatId = localStorage.getItem('api_chat_id');
+    // API Ayarlarını Firestore'dan oku
+    let config;
+    try {
+        const configDoc = await db.collection('settings').doc('config').get();
+        if (configDoc.exists) {
+            config = configDoc.data();
+        } else {
+            throw new Error("Sistem ayarları bulunamadı. Lütfen sağ taraftaki panelden ayarları kaydedin.");
+        }
+    } catch (err) {
+        alert("WhatsApp API ayarları yüklenemedi: " + err.message);
+        return;
+    }
+
+    const apiProvider = config.apiProvider || 'green-api';
+    const instanceId = config.apiInstanceId;
+    const token = config.apiToken;
+    const chatId = config.apiChatId;
 
     if (!instanceId || !token || !chatId) {
         alert('Lütfen önce sağ taraftaki panelden WhatsApp API ayarlarınızı yapın.');
