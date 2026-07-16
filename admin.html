@@ -104,6 +104,119 @@
         </div>
     </main>
 
+    <!-- İlan Düzenleme Modalı -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button id="close-edit-modal" class="modal-close-btn">&times;</button>
+            <h3 class="modal-title">İlanı Düzenle</h3>
+            <p class="modal-subtitle">İlan bilgilerini güncelleyin. Yapılan değişiklikler veritabanına kaydedilecektir.</p>
+            
+            <form id="car-edit-form">
+                <input type="hidden" id="edit-car-id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="edit-car-brand-model">Marka Model</label>
+                        <input type="text" id="edit-car-brand-model" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="edit-car-year">Model Yılı</label>
+                        <select id="edit-car-year" class="form-control" required>
+                            <!-- JS ile dinamik doldurulacak -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="edit-car-fuel">Yakıt</label>
+                        <select id="edit-car-fuel" class="form-control" required>
+                            <option value="Benzin">Benzin</option>
+                            <option value="Benzin & LPG">Benzin & LPG</option>
+                            <option value="Dizel">Dizel</option>
+                            <option value="Hibrit">Hibrit</option>
+                            <option value="Elektrik">Elektrik</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="edit-car-transmission">Vites</label>
+                        <select id="edit-car-transmission" class="form-control" required>
+                            <option value="Manuel">Manuel</option>
+                            <option value="Otomatik">Otomatik</option>
+                            <option value="Yarı Otomatik">Yarı Otomatik</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="edit-car-city">Şehir</label>
+                        <select id="edit-car-city" class="form-control" required>
+                            <!-- JS ile dinamik doldurulacak -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="edit-car-km">Kilometre (Km)</label>
+                        <input type="text" id="edit-car-km" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="edit-car-paint">Boya</label>
+                        <input type="text" id="edit-car-paint" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="edit-car-replaced">Değişen</label>
+                        <input type="text" id="edit-car-replaced" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="edit-car-tramer">Tramer</label>
+                        <input type="text" id="edit-car-tramer" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="edit-car-price">Fiyat (TL)</label>
+                        <input type="number" id="edit-car-price" class="form-control" min="0" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label class="form-label" for="edit-seller-phone">İletişim Numarası</label>
+                        <input type="tel" id="edit-seller-phone" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="edit-car-description">Genel Açıklama</label>
+                    <textarea id="edit-car-description" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Araç Fotoğrafları (En fazla 5 adet - Değiştirmek istemiyorsanız boş bırakın)</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="edit-car-images" class="file-upload-input" accept="image/*" multiple>
+                        <div class="file-upload-text">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <h4>Yeni Resim Seçin veya Sürükleyin</h4>
+                            <p>Mevcut resimleri değiştirmek için yeni dosyalar seçin. Seçim yapmazsanız eski resimler korunur.</p>
+                        </div>
+                    </div>
+                    <div id="edit-image-preview-container" class="image-preview-gallery"></div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" id="submit-edit-btn" class="btn-form-submit">
+                        <span class="btn-text"><i class="fa-solid fa-save"></i> Güncellemeleri Kaydet</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Firebase Compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>

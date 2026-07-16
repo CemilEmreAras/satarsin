@@ -226,6 +226,165 @@ function initAdminPage() {
     const listingsContainer = document.getElementById('listings-container');
     const listingsCountBadge = document.getElementById('listings-count');
 
+    // Düzenleme Modalı Elemanları
+    const editModal = document.getElementById('edit-modal');
+    const closeEditModalBtn = document.getElementById('close-edit-modal');
+    const editForm = document.getElementById('car-edit-form');
+    const editFileInput = document.getElementById('edit-car-images');
+    const editPreviewContainer = document.getElementById('edit-image-preview-container');
+    
+    window.editSelectedFiles = []; // Düzenlenen ilan için yeni seçilen resimler
+
+    // Düzenleme görselleri dosya değişimi
+    if (editFileInput) {
+        editFileInput.addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            if (window.editSelectedFiles.length + files.length > 5) {
+                alert('En fazla 5 adet görsel yükleyebilirsiniz.');
+                editFileInput.value = '';
+                return;
+            }
+            for (const file of files) {
+                if (!file.type.startsWith('image/')) continue;
+                try {
+                    const base64Data = await compressAndGetBase64(file, 600, 0.5);
+                    window.editSelectedFiles.push({
+                        base64: base64Data,
+                        name: file.name
+                    });
+                    renderEditPreview();
+                } catch (error) {
+                    console.error('Resim sıkıştırma hatası:', error);
+                }
+            }
+            editFileInput.value = '';
+        });
+    }
+
+    function renderEditPreview() {
+        editPreviewContainer.innerHTML = '';
+        window.editSelectedFiles.forEach((fileObj, index) => {
+            const previewItem = document.createElement('div');
+            previewItem.className = 'preview-item';
+            
+            const img = document.createElement('img');
+            img.src = fileObj.base64;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'preview-remove-btn';
+            removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            removeBtn.addEventListener('click', () => {
+                window.editSelectedFiles.splice(index, 1);
+                renderEditPreview();
+            });
+
+            if (index === 0) {
+                const badge = document.createElement('span');
+                badge.className = 'cover-badge';
+                badge.innerText = 'Kapak';
+                previewItem.appendChild(badge);
+            }
+
+            previewItem.appendChild(img);
+            previewItem.appendChild(removeBtn);
+            editPreviewContainer.appendChild(previewItem);
+        });
+    }
+
+    // Türkiye'nin 81 İli Listesi
+    const TURKEY_CITIES = ["Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya", "Artvin", "Aydın", "Balıkesir", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Isparta", "Mersin", "İstanbul", "İzmir", "Kars", "Kastamonu", "Kayseri", "Kırklareli", "Kırşehir", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Kahramanmaraş", "Mardin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Şanlıurfa", "Uşak", "Van", "Yozgat", "Zonguldak", "Aksaray", "Bayburt", "Karaman", "Kırıkkale", "Batman", "Şırnak", "Bartın", "Ardahan", "Iğdır", "Yalova", "Karabük", "Kilis", "Osmaniye", "Düzce"];
+
+    const editYearSelect = document.getElementById('edit-car-year');
+    if (editYearSelect) {
+        let yearsHtml = '<option value="" disabled selected>Seçin</option>';
+        const maxYear = new Date().getFullYear() + 1;
+        for (let y = maxYear; y >= 1970; y--) {
+            yearsHtml += `<option value="${y}">${y}</option>`;
+        }
+        editYearSelect.innerHTML = yearsHtml;
+    }
+
+    const editCitySelect = document.getElementById('edit-car-city');
+    if (editCitySelect) {
+        let citiesHtml = '<option value="" disabled selected>Seçin</option>';
+        TURKEY_CITIES.forEach(c => {
+            citiesHtml += `<option value="${c}">${c}</option>`;
+        });
+        editCitySelect.innerHTML = citiesHtml;
+    }
+
+    if (closeEditModalBtn && editModal) {
+        closeEditModalBtn.addEventListener('click', () => {
+            editModal.classList.remove('active');
+        });
+    }
+
+    const editPhoneInput = document.getElementById('edit-seller-phone');
+    if (editPhoneInput) {
+        editPhoneInput.addEventListener('focus', () => {
+            if (editPhoneInput.value.trim() === '') {
+                editPhoneInput.value = '0';
+            }
+            setTimeout(() => {
+                const valLength = editPhoneInput.value.length;
+                editPhoneInput.setSelectionRange(valLength, valLength);
+            }, 10);
+        });
+        editPhoneInput.addEventListener('blur', () => {
+            if (editPhoneInput.value.trim() === '0') {
+                editPhoneInput.value = '';
+            }
+        });
+    }
+
+    if (editForm) {
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-car-id').value;
+            const submitBtn = document.getElementById('submit-edit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Kaydediliyor...';
+            
+            let phoneVal = document.getElementById('edit-seller-phone').value.trim();
+            if (phoneVal && !phoneVal.startsWith('0')) {
+                phoneVal = '0' + phoneVal;
+            }
+
+            try {
+                const updateData = {
+                    brandModel: document.getElementById('edit-car-brand-model').value.trim(),
+                    year: parseInt(document.getElementById('edit-car-year').value),
+                    fuel: document.getElementById('edit-car-fuel').value,
+                    transmission: document.getElementById('edit-car-transmission').value,
+                    city: document.getElementById('edit-car-city').value,
+                    km: document.getElementById('edit-car-km').value.trim(),
+                    paint: document.getElementById('edit-car-paint').value.trim(),
+                    replaced: document.getElementById('edit-car-replaced').value.trim(),
+                    tramer: document.getElementById('edit-car-tramer').value.trim(),
+                    price: parseFloat(document.getElementById('edit-car-price').value),
+                    sellerPhone: phoneVal,
+                    description: document.getElementById('edit-car-description').value.trim()
+                };
+
+                // Eğer yeni görsel yüklenmişse veritabanındaki görselleri değiştir
+                if (window.editSelectedFiles.length > 0) {
+                    updateData.images = window.editSelectedFiles.map(f => f.base64);
+                }
+
+                await db.collection('listings').doc(id).update(updateData);
+                alert('İlan başarıyla güncellendi.');
+                editModal.classList.remove('active');
+            } catch (error) {
+                console.error("Güncelleme hatası:", error);
+                alert("İlan güncellenirken bir hata oluştu: " + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="btn-text"><i class="fa-solid fa-save"></i> Güncellemeleri Kaydet</span>';
+            }
+        });
+    }
+
     // 1. ŞİFRE GÜVENLİK VE GİRİŞ KONTROLLERİ
     const getStoredPassword = () => localStorage.getItem('admin_pass') || '12345';
     
@@ -357,12 +516,15 @@ function initAdminPage() {
                         <div class="listing-date"><i class="fa-solid fa-clock"></i> ${dateStr}</div>
                     </div>
                     
-                    <div class="listing-actions">
-                        <button class="btn-listing-action btn-wp-publish" onclick="publishToListing('${id}')">
-                            <i class="fa-brands fa-whatsapp"></i> WP Grubuna Gönder
+                    <div class="listing-actions" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; margin-top: 15px; width: 100%;">
+                        <button class="btn-listing-action btn-wp-publish" onclick="publishToListing('${id}')" style="margin: 0; padding: 10px 5px; font-size: 0.8rem; height: 38px;">
+                            <i class="fa-brands fa-whatsapp"></i> Paylaş
                         </button>
-                        <button class="btn-listing-action btn-delete-listing" onclick="deleteListing('${id}')">
-                            <i class="fa-solid fa-trash-can"></i> İlanı Sil
+                        <button class="btn-listing-action" onclick="openEditModal('${id}')" style="margin: 0; padding: 10px 5px; font-size: 0.8rem; height: 38px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: #ffffff; border-radius: 10px; cursor: pointer; font-weight: 700; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                            <i class="fa-solid fa-pen-to-square"></i> Düzenle
+                        </button>
+                        <button class="btn-listing-action btn-delete-listing" onclick="deleteListing('${id}')" style="margin: 0; padding: 10px 5px; font-size: 0.8rem; height: 38px; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                            <i class="fa-solid fa-trash-can"></i> Sil
                         </button>
                     </div>
                 </div>
@@ -426,6 +588,47 @@ function compressAndGetBase64(file, maxWidth, quality) {
 // ==========================================
 // ADMIN PANEL ACTIONS (GLOBAL WINDOW FUNCTIONS)
 // ==========================================
+
+// İlan Düzenleme Modalı Aç
+window.openEditModal = async function(id) {
+    const editModal = document.getElementById('edit-modal');
+    if (!editModal) return;
+
+    try {
+        const doc = await db.collection('listings').doc(id).get();
+        if (!doc.exists) {
+            alert('İlan bulunamadı.');
+            return;
+        }
+        const data = doc.data();
+        
+        // Yeni görsel seçim listesini temizle
+        window.editSelectedFiles = [];
+        const previewContainer = document.getElementById('edit-image-preview-container');
+        if (previewContainer) previewContainer.innerHTML = '';
+        const fileInput = document.getElementById('edit-car-images');
+        if (fileInput) fileInput.value = '';
+
+        document.getElementById('edit-car-id').value = id;
+        document.getElementById('edit-car-brand-model').value = data.brandModel || '';
+        document.getElementById('edit-car-year').value = data.year || '';
+        document.getElementById('edit-car-fuel').value = data.fuel || 'Benzin';
+        document.getElementById('edit-car-transmission').value = data.transmission || 'Manuel';
+        document.getElementById('edit-car-city').value = data.city || '';
+        document.getElementById('edit-car-km').value = data.km || '';
+        document.getElementById('edit-car-paint').value = data.paint || '';
+        document.getElementById('edit-car-replaced').value = data.replaced || '';
+        document.getElementById('edit-car-tramer').value = data.tramer || '';
+        document.getElementById('edit-car-price').value = data.price || 0;
+        document.getElementById('edit-seller-phone').value = data.sellerPhone || '';
+        document.getElementById('edit-car-description').value = data.description || '';
+
+        editModal.classList.add('active');
+    } catch (error) {
+        console.error("İlan detayları çekilemedi:", error);
+        alert("İlan bilgileri yüklenirken hata oluştu: " + error.message);
+    }
+};
 
 // İlanı Sil
 window.deleteListing = async function(id) {
@@ -597,13 +800,13 @@ function base64ToBlob(base64Data, contentType = 'image/jpeg') {
     return new Blob(byteArrays, { type: contentType });
 }
 
-// Green-API Görsel Gönderim İsteyi
+// Green-API Görsel Gönderim İsteği
 async function sendGreenApiImage(instanceId, token, chatId, imageUrl, caption) {
     let url, response;
     
-    // Green-API'de host adresi Instance ID'nizin ilk 4 hanesinden oluşur (Örn: 7107.api.greenapi.com)
+    // Green-API'de host adresi Instance ID'nizin ilk 4 hanesinden oluşur (Örn: 7107.media.greenapi.com)
     const hostPrefix = instanceId.substring(0, 4);
-    const baseUrl = `https://${hostPrefix}.api.greenapi.com`;
+    const mediaUrl = `https://${hostPrefix}.media.greenapi.com`;
     
     // Eğer resim yerel veya bağıl bir yol ise (örn: logo.jpg), bunu tam URL'e çevirelim
     if (!imageUrl.startsWith('data:') && !imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
@@ -612,7 +815,7 @@ async function sendGreenApiImage(instanceId, token, chatId, imageUrl, caption) {
     
     // Eğer görsel base64 ise sendFileByUpload kullanıyoruz
     if (imageUrl.startsWith('data:')) {
-        url = `${baseUrl}/waInstance${instanceId}/sendFileByUpload/${token}`;
+        url = `${mediaUrl}/waInstance${instanceId}/sendFileByUpload/${token}`;
         
         const blob = base64ToBlob(imageUrl, 'image/jpeg');
         const formData = new FormData();
@@ -628,7 +831,7 @@ async function sendGreenApiImage(instanceId, token, chatId, imageUrl, caption) {
         });
     } else {
         // Normal URL ise sendFileByUrl kullanıyoruz
-        url = `${baseUrl}/waInstance${instanceId}/sendFileByUrl/${token}`;
+        url = `${mediaUrl}/waInstance${instanceId}/sendFileByUrl/${token}`;
         const body = {
             chatId: chatId,
             urlFile: imageUrl,
