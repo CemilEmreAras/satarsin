@@ -802,8 +802,9 @@ function base64ToBlob(base64Data, contentType = 'image/jpeg') {
 
 // Helper: Görseli Green-API Bulut Deposuna Yükler ve Geçici Link Alır (Kanallar için zorunludur)
 async function uploadFileToGreenApi(instanceId, token, base64Data) {
-    const mediaUrl = `https://media.greenapi.com`;
-    const url = `${mediaUrl}/waInstance${instanceId}/uploadFile/${token}`;
+    const hostPrefix = instanceId.substring(0, 4);
+    const apiUrl = `https://${hostPrefix}.api.greenapi.com`;
+    const url = `${apiUrl}/waInstance${instanceId}/uploadFile/${token}`;
     
     const blob = base64ToBlob(base64Data, 'image/jpeg');
 
@@ -825,7 +826,8 @@ async function uploadFileToGreenApi(instanceId, token, base64Data) {
 // Green-API Görsel Gönderim İsteği (Kanallarda da %100 çalışabilmesi için önce bulut yüklemesi yapar)
 async function sendGreenApiImage(instanceId, token, chatId, imageUrl, caption) {
     let url, response;
-    const mediaUrl = `https://media.greenapi.com`;
+    const hostPrefix = instanceId.substring(0, 4);
+    const apiUrl = `https://${hostPrefix}.api.greenapi.com`;
     
     // Eğer resim yerel veya bağıl bir yol ise (örn: logo.jpg), bunu tam URL'e çevirelim
     if (!imageUrl.startsWith('data:') && !imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
@@ -839,7 +841,7 @@ async function sendGreenApiImage(instanceId, token, chatId, imageUrl, caption) {
             const uploadedUrl = await uploadFileToGreenApi(instanceId, token, imageUrl);
             
             // 2. Bu linki kanala/gruba sendFileByUrl ile gönder
-            url = `${mediaUrl}/waInstance${instanceId}/sendFileByUrl/${token}`;
+            url = `${apiUrl}/waInstance${instanceId}/sendFileByUrl/${token}`;
             const body = {
                 chatId: chatId,
                 urlFile: uploadedUrl,
@@ -860,7 +862,7 @@ async function sendGreenApiImage(instanceId, token, chatId, imageUrl, caption) {
         }
     } else {
         // Normal URL ise doğrudan sendFileByUrl kullanıyoruz
-        url = `${mediaUrl}/waInstance${instanceId}/sendFileByUrl/${token}`;
+        url = `${apiUrl}/waInstance${instanceId}/sendFileByUrl/${token}`;
         const body = {
             chatId: chatId,
             urlFile: imageUrl,
