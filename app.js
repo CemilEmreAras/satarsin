@@ -800,11 +800,31 @@ function base64ToBlob(base64Data, contentType = 'image/jpeg') {
     return new Blob(byteArrays, { type: contentType });
 }
 
-// Green-API Görsel Gönderim İsteği
+// Helper: Görseli Green-API Bulut Deposuna Yükler ve Geçici Link Alır (Kanallar için zorunludur)
+async function uploadFileToGreenApi(instanceId, token, base64Data) {
+    const mediaUrl = `https://media.greenapi.com`;
+    const url = `${mediaUrl}/waInstance${instanceId}/uploadFile/${token}`;
+    
+    const blob = base64ToBlob(base64Data, 'image/jpeg');
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'image/jpeg'
+        },
+        body: blob
+    });
+
+    const result = await response.json();
+    if (!result.urlFile) {
+        throw new Error(result.message || 'Görsel buluta yüklenemedi.');
+    }
+    return result.urlFile;
+}
+
+// Green-API Görsel Gönderim İsteği (Kanallarda da %100 çalışabilmesi için önce bulut yüklemesi yapar)
 async function sendGreenApiImage(instanceId, token, chatId, imageUrl, caption) {
     let url, response;
-    
-    // Green-API genel medya sunucusu (DNS çözümleme hatasını önlemek için)
     const mediaUrl = `https://media.greenapi.com`;
     
     // Eğer resim yerel veya bağıl bir yol ise (örn: logo.jpg), bunu tam URL'e çevirelim
@@ -812,24 +832,34 @@ async function sendGreenApiImage(instanceId, token, chatId, imageUrl, caption) {
         imageUrl = window.location.origin + '/' + imageUrl;
     }
     
-    // Eğer görsel base64 ise sendFileByUpload kullanıyoruz
+    // Eğer görsel base64 ise, kanala doğrudan yollayabilmek için önce buluta yükleyip linke dönüştürelim
     if (imageUrl.startsWith('data:')) {
-        url = `${mediaUrl}/waInstance${instanceId}/sendFileByUpload/${token}`;
-        
-        const blob = base64ToBlob(imageUrl, 'image/jpeg');
-        const formData = new FormData();
-        formData.append('chatId', chatId);
-        formData.append('file', blob, 'arac.jpg');
-        if (caption) {
-            formData.append('caption', caption);
-        }
+        try {
+            // 1. Buluta yükle ve link al
+            const uploadedUrl = await uploadFileToGreenApi(instanceId, token, imageUrl);
+            
+            // 2. Bu linki kanala/gruba sendFileByUrl ile gönder
+            url = `${mediaUrl}/waInstance${instanceId}/sendFileByUrl/${token}`;
+            const body = {
+                chatId: chatId,
+                urlFile: uploadedUrl,
+                fileName: "arac.jpg",
+                caption: caption
+            };
 
-        response = await fetch(url, {
-            method: 'POST',
-            body: formData
-        });
+            response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+        } catch (uploadError) {
+            console.error("Buluta yükleme hatası:", uploadError);
+            throw new Error("Görsel buluta yüklenemediği için gönderilemedi: " + uploadError.message);
+        }
     } else {
-        // Normal URL ise sendFileByUrl kullanıyoruz
+        // Normal URL ise doğrudan sendFileByUrl kullanıyoruz
         url = `${mediaUrl}/waInstance${instanceId}/sendFileByUrl/${token}`;
         const body = {
             chatId: chatId,
