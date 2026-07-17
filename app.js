@@ -1,3 +1,10 @@
+// Sayı maskeleme (Thousand separator helper)
+function formatNumberWithDots(val) {
+    let num = val.replace(/\D/g, '');
+    if (!num) return '';
+    return new Intl.NumberFormat('tr-TR').format(parseInt(num));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Premium Mouse Move Glow Effect inside the card (if present on page)
     const card = document.getElementById('main-card');
@@ -88,6 +95,22 @@ function initLandingPage() {
         });
     }
 
+    // Fiyat alanına nokta maskelemesi ekleme (1.250.000 gibi)
+    const priceInput = document.getElementById('car-price');
+    if (priceInput) {
+        priceInput.addEventListener('input', (e) => {
+            let cursorPosition = e.target.selectionStart;
+            let originalLength = e.target.value.length;
+            
+            let formatted = formatNumberWithDots(e.target.value);
+            e.target.value = formatted;
+            
+            // İmleç konumunu koru
+            let newLength = formatted.length;
+            cursorPosition = cursorPosition + (newLength - originalLength);
+            e.target.setSelectionRange(cursorPosition, cursorPosition);
+        });
+    }
 
     // Dosya seçimi ve sıkıştırma
     if (fileInput) {
@@ -184,7 +207,7 @@ function initLandingPage() {
                     paint: document.getElementById('car-paint').value.trim(),
                     replaced: document.getElementById('car-replaced').value.trim(),
                     tramer: document.getElementById('car-tramer').value.trim(),
-                    price: parseFloat(document.getElementById('car-price').value),
+                    price: parseFloat(document.getElementById('car-price').value.replace(/\./g, '')),
                     sellerPhone: (() => {
                         let phone = document.getElementById('seller-phone').value.trim();
                         if (phone && !phone.startsWith('0')) {
@@ -373,6 +396,23 @@ function initAdminPage() {
     
     window.editSelectedFiles = []; // Düzenlenen ilan için yeni seçilen resimler
 
+    // Fiyat alanına nokta maskelemesi ekleme (1.250.000 gibi)
+    const editPriceInput = document.getElementById('edit-car-price');
+    if (editPriceInput) {
+        editPriceInput.addEventListener('input', (e) => {
+            let cursorPosition = e.target.selectionStart;
+            let originalLength = e.target.value.length;
+            
+            let formatted = formatNumberWithDots(e.target.value);
+            e.target.value = formatted;
+            
+            // İmleç konumunu koru
+            let newLength = formatted.length;
+            cursorPosition = cursorPosition + (newLength - originalLength);
+            e.target.setSelectionRange(cursorPosition, cursorPosition);
+        });
+    }
+
     // Düzenleme görselleri dosya değişimi
     if (editFileInput) {
         editFileInput.addEventListener('change', async (e) => {
@@ -500,7 +540,7 @@ function initAdminPage() {
                     paint: document.getElementById('edit-car-paint').value.trim(),
                     replaced: document.getElementById('edit-car-replaced').value.trim(),
                     tramer: document.getElementById('edit-car-tramer').value.trim(),
-                    price: parseFloat(document.getElementById('edit-car-price').value),
+                    price: parseFloat(document.getElementById('edit-car-price').value.replace(/\./g, '')),
                     sellerPhone: phoneVal,
                     description: document.getElementById('edit-car-description').value.trim()
                 };
@@ -1023,7 +1063,7 @@ window.openEditModal = async function(id) {
         document.getElementById('edit-car-paint').value = data.paint || '';
         document.getElementById('edit-car-replaced').value = data.replaced || '';
         document.getElementById('edit-car-tramer').value = data.tramer || '';
-        document.getElementById('edit-car-price').value = data.price || 0;
+        document.getElementById('edit-car-price').value = data.price ? formatNumberWithDots(data.price.toString()) : '';
         document.getElementById('edit-seller-phone').value = data.sellerPhone || '';
         document.getElementById('edit-car-description').value = data.description || '';
 
