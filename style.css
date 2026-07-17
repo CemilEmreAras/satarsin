@@ -1848,4 +1848,151 @@ body {
     object-fit: cover;
 }
 
+/* Premium Vehicle Image Frame CSS */
+.premium-frame-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 5;
+    box-sizing: border-box;
+    /* Outer Golden Border with Glow */
+    border: 2px solid;
+    border-image: linear-gradient(135deg, #f3e5ab, #d5b04c, #866118, #d5b04c, #f3e5ab) 1;
+    box-shadow: inset 0 0 15px rgba(213, 176, 76, 0.2), 0 0 10px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* Hover state: fade out the frame slightly to reveal the complete image */
+.showcase-card:hover .premium-frame-overlay {
+    opacity: 0.15; /* Keeps a very subtle gold boundary but reveals the full image */
+}
+
+/* Top Left Brand Notch */
+.frame-logo-notch {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-right: 2px solid var(--gold-primary);
+    border-bottom: 2px solid var(--gold-primary);
+    border-bottom-right-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    z-index: 6;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+}
+
+.frame-logo-img {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--gold-primary);
+}
+
+.frame-logo-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    text-transform: lowercase;
+}
+
+.frame-logo-text .gold {
+    color: var(--gold-primary);
+}
+
+/* Top Right Decorative Stripes */
+.frame-top-right-stripes {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    gap: 3px;
+    transform: skewX(-30deg);
+}
+
+.frame-top-right-stripes .stripe-bar {
+    width: 4px;
+    height: 12px;
+    background: var(--gold-primary);
+    display: block;
+    box-shadow: 0 0 5px rgba(213, 176, 76, 0.5);
+}
+
+/* Bottom Corporate Info Bar */
+.frame-bottom-bar {
+    position: absolute;
+    bottom: -2px;
+    left: -2px;
+    right: -2px;
+    height: 28px;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-top: 2px solid var(--gold-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    z-index: 6;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.5);
+}
+
+.frame-info-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto;
+}
+
+.frame-info-text i {
+    color: var(--gold-primary);
+}
+
+.frame-bar-separator {
+    color: var(--gold-primary);
+    opacity: 0.6;
+}
+
+/* Bottom Corners Stripes */
+.frame-bottom-stripes-left, .frame-bottom-stripes-right {
+    display: flex;
+    gap: 2px;
+    transform: skewX(-30deg);
+}
+
+.frame-bottom-stripes-left .stripe-bar-sm, .frame-bottom-stripes-right .stripe-bar-sm {
+    width: 3px;
+    height: 8px;
+    background: var(--gold-primary);
+    display: block;
+}
+
+/* Adjust showcase main badge position to not overlap the frame notch */
+.showcase-card-badge {
+    top: 35px !important;
+    z-index: 6;
+}
+
+/* Adjust gallery thumbs position to stay above bottom bar */
+.showcase-gallery-thumbs {
+    bottom: 35px !important;
+    z-index: 6;
+}
+
 

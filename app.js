@@ -299,6 +299,39 @@ function initLandingPage() {
             card.innerHTML = `
                 <div class="showcase-card-img-wrapper">
                     <img src="${coverImage}" id="showcase-main-img-${id}" class="showcase-card-img" alt="${data.brandModel}">
+                    
+                    <!-- Premium Golden Frame Overlay -->
+                    <div class="premium-frame-overlay">
+                        <!-- Top Left Brand Notch -->
+                        <div class="frame-logo-notch">
+                            <img src="logo.jpg" alt="Logo" class="frame-logo-img">
+                            <span class="frame-logo-text">sa₺arsın<span class="gold">.com.tr</span></span>
+                        </div>
+                        
+                        <!-- Decorative Top Right Stripes -->
+                        <div class="frame-top-right-stripes">
+                            <span class="stripe-bar"></span>
+                            <span class="stripe-bar"></span>
+                        </div>
+                        
+                        <!-- Bottom Corporate Info Bar -->
+                        <div class="frame-bottom-bar">
+                            <div class="frame-bottom-stripes-left">
+                                <span class="stripe-bar-sm"></span>
+                                <span class="stripe-bar-sm"></span>
+                            </div>
+                            <div class="frame-info-text">
+                                <span><i class="fa-solid fa-globe"></i> www.satarsin.com.tr</span>
+                                <span class="frame-bar-separator">|</span>
+                                <span><i class="fa-brands fa-instagram"></i> @satarsin.com.tr</span>
+                            </div>
+                            <div class="frame-bottom-stripes-right">
+                                <span class="stripe-bar-sm"></span>
+                                <span class="stripe-bar-sm"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <span class="showcase-card-badge">${data.year || '-'}</span>
                     ${thumbsHtml}
                 </div>
