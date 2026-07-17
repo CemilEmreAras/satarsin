@@ -652,7 +652,12 @@ function initAdminPage() {
     function renderListings(snapshot) {
         listingsContainer.innerHTML = '';
         const docs = snapshot.docs;
-        listingsCountBadge.innerText = `${docs.length} İlan`;
+        
+        // Vitrin ve WhatsApp istatistiklerini hesapla
+        const totalCount = docs.length;
+        const showcaseCount = docs.filter(doc => doc.data().showcase === true).length;
+        const wpSharedCount = docs.filter(doc => doc.data().wpShared === true).length;
+        listingsCountBadge.innerHTML = `${totalCount} İlan <span style="color: #4ade80; margin-left: 6px; font-weight: 800;">(${showcaseCount} Vitrinde | ${wpSharedCount} WhatsApp'ta)</span>`;
 
         if (docs.length === 0) {
             listingsContainer.innerHTML = `
@@ -681,6 +686,12 @@ function initAdminPage() {
             const card = document.createElement('div');
             card.className = 'listing-card';
             card.id = `card-${id}`;
+            
+            // Yayınlanma durumuna göre yeşil veya kırmızı çerçeve rengi
+            card.style.border = `2px solid ${data.showcase ? '#4ade80' : '#ef4444'}`;
+            card.style.boxShadow = data.showcase ? '0 8px 32px rgba(74, 222, 128, 0.08)' : '0 8px 32px rgba(239, 68, 68, 0.05)';
+            card.style.transition = 'all 0.3s ease';
+
             card.innerHTML = `
                 <div class="listing-media">
                     <img src="${mainImg}" class="listing-main-img" id="main-img-${id}" alt="Araç Görseli">
@@ -690,6 +701,17 @@ function initAdminPage() {
                 </div>
                 <div class="listing-info">
                     <div class="listing-info-header">
+                        <!-- Yayınlanma Durum Rozetleri -->
+                        <div class="publication-status" style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                            <span class="status-badge" style="padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; background: ${data.showcase ? 'rgba(74, 222, 128, 0.1)' : 'rgba(239, 68, 68, 0.1)'}; color: ${data.showcase ? '#4ade80' : '#ef4444'}; border: 1px solid ${data.showcase ? 'rgba(74, 222, 128, 0.2)' : 'rgba(239, 68, 68, 0.2)'};">
+                                <i class="fa-solid ${data.showcase ? 'fa-eye' : 'fa-eye-slash'}"></i>
+                                ${data.showcase ? 'Vitrinde Yayında' : 'Vitrinde Yayında Değil'}
+                            </span>
+                            <span class="status-badge" style="padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; background: ${data.wpShared ? 'rgba(74, 222, 128, 0.1)' : 'rgba(255, 255, 255, 0.05)'}; color: ${data.wpShared ? '#4ade80' : 'rgba(255,255,255,0.4)'}; border: 1px solid ${data.wpShared ? 'rgba(74, 222, 128, 0.2)' : 'rgba(255,255,255,0.1)'};">
+                                <i class="fa-brands fa-whatsapp"></i>
+                                ${data.wpShared ? 'WhatsApp\'ta Paylaşıldı' : 'WhatsApp\'ta Paylaşılmadı'}
+                            </span>
+                        </div>
                         <div class="listing-brand-model">${data.brandModel || 'Araç İlanı'}</div>
                         <div class="listing-meta" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin: 10px 0; font-size: 0.8rem; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
                             <span><i class="fa-solid fa-calendar-days" style="color: var(--gold-primary); margin-right: 4px;"></i><strong>Yıl:</strong> ${data.year || '-'}</span>
@@ -1110,6 +1132,13 @@ window.publishToListing = async function(id) {
             await sendGreenApiText(instanceId, token, chatId, messageText);
         } else if (apiProvider === 'ultramsg') {
             await sendUltraMsgText(instanceId, token, chatId, messageText);
+        }
+
+        // Firebase'de paylaşıldı durumunu işaretle
+        try {
+            await db.collection('listings').doc(id).update({ wpShared: true });
+        } catch (dbErr) {
+            console.error("Firebase güncelleme hatası (wpShared):", dbErr);
         }
 
         alert('Tebrikler! Araç görselleri ve açıklama WhatsApp grubuna başarıyla gönderildi.');
