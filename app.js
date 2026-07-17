@@ -211,6 +211,144 @@ function initLandingPage() {
             }
         });
     }
+
+    // 4. ANASAYFA VITRIN YÜKLEYİCİSİ (İndeks gereksinimini kaldırmak için client-side filtreleme yapıyoruz)
+    const showcaseContainer = document.getElementById('showcase-container');
+    if (showcaseContainer && db) {
+        db.collection('listings')
+            .orderBy('timestamp', 'desc')
+            .onSnapshot((snapshot) => {
+                renderShowcaseListings(snapshot);
+            }, (error) => {
+                console.error("Vitrin verileri çekilirken hata oluştu:", error);
+                showcaseContainer.innerHTML = `<div class="empty-state" style="color: #ff4a4a;"><i class="fa-solid fa-triangle-exclamation"></i> Vitrin ilanları yüklenemedi.</div>`;
+            });
+    }
+
+    function renderShowcaseListings(snapshot) {
+        showcaseContainer.innerHTML = '';
+        // İndeks hatası almamak için vitrin filtresini burada yapıyoruz
+        const docs = snapshot.docs.filter(doc => doc.data().showcase === true);
+        
+        if (docs.length === 0) {
+            showcaseContainer.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1; text-align: center; color: rgba(255,255,255,0.4); padding: 60px 0; background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.1); border-radius: 24px;">
+                    <i class="fa-solid fa-car-side" style="font-size: 3rem; color: var(--gold-primary); margin-bottom: 15px; display: block;"></i>
+                    Şu an yayında vitrin ilanı bulunmamaktadır.
+                </div>
+            `;
+            return;
+        }
+
+        docs.forEach(doc => {
+            const id = doc.id;
+            const data = doc.data();
+            
+            // Fiyat formatlama
+            const formattedPrice = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 }).format(data.price || 0);
+            
+            // Tarih formatlama
+            let dateStr = 'Yeni İlan';
+            if (data.timestamp) {
+                const dateVal = data.timestamp.toDate();
+                dateStr = dateVal.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+            }
+
+            const coverImage = (data.images && data.images.length > 0) ? data.images[0] : 'logo.jpg';
+            
+            // Küçük resimler (Görsel galerisi)
+            let thumbsHtml = '';
+            if (data.images && data.images.length > 1) {
+                thumbsHtml += `<div class="showcase-gallery-thumbs">`;
+                data.images.forEach((img, idx) => {
+                    thumbsHtml += `
+                        <div class="showcase-thumb ${idx === 0 ? 'active' : ''}" onclick="event.stopPropagation(); changeShowcaseMainImage('${id}', '${img}', this)">
+                            <img src="${img}" alt="Görsel ${idx+1}">
+                        </div>
+                    `;
+                });
+                thumbsHtml += `</div>`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'showcase-card';
+            card.id = `showcase-${id}`;
+            card.innerHTML = `
+                <div class="showcase-card-img-wrapper">
+                    <img src="${coverImage}" id="showcase-main-img-${id}" class="showcase-card-img" alt="${data.brandModel}">
+                    <span class="showcase-card-badge">${data.year || '-'}</span>
+                    ${thumbsHtml}
+                </div>
+                <div class="showcase-card-content">
+                    <h3 class="showcase-card-title">${data.brandModel || 'Araç İlanı'}</h3>
+                    <div class="showcase-card-meta">
+                        <i class="fa-solid fa-calendar-days"></i> ${dateStr}
+                    </div>
+                    
+                    <div class="showcase-card-details-grid">
+                        <div class="showcase-detail-item">
+                            <i class="fa-solid fa-gauge-high"></i>
+                            <span>${data.km ? parseInt(data.km).toLocaleString('tr-TR') : '-'} KM</span>
+                        </div>
+                        <div class="showcase-detail-item">
+                            <i class="fa-solid fa-gas-pump"></i>
+                            <span>${data.fuel || '-'}</span>
+                        </div>
+                        <div class="showcase-detail-item">
+                            <i class="fa-solid fa-gears"></i>
+                            <span>${data.transmission || '-'}</span>
+                        </div>
+                        <div class="showcase-detail-item">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span>${data.city || '-'}</span>
+                        </div>
+                        <div class="showcase-detail-item" style="grid-column: span 2;">
+                            <i class="fa-solid fa-palette"></i>
+                            <span><strong>Boya:</strong> ${data.paint || '-'}</span>
+                        </div>
+                        <div class="showcase-detail-item" style="grid-column: span 2;">
+                            <i class="fa-solid fa-wrench"></i>
+                            <span><strong>Değişen:</strong> ${data.replaced || '-'}</span>
+                        </div>
+                        <div class="showcase-detail-item" style="grid-column: span 2;">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span><strong>Tramer:</strong> ${data.tramer || '-'}</span>
+                        </div>
+                    </div>
+
+                    <p class="showcase-card-desc" style="white-space: pre-line;">${data.description || 'Açıklama belirtilmedi.'}</p>
+                    
+                    <div class="showcase-card-footer">
+                        <div class="showcase-card-price">${formattedPrice}</div>
+                        <!-- SATICI NUMARASI GİZLENMİŞTİR - YÖNLENDİRME DESTEK HATTINADIR -->
+                        <button class="showcase-card-btn" onclick="contactShowcaseAdmin('${id}', '${data.brandModel.replace(/'/g, "\\'")}', '${formattedPrice}')">
+                            <i class="fa-brands fa-whatsapp"></i> Bilgi Al
+                        </button>
+                    </div>
+                </div>
+            `;
+            showcaseContainer.appendChild(card);
+        });
+    }
+
+    // Küçük resme tıklandığında ana görseli değiştirme helper'ı
+    window.changeShowcaseMainImage = function(id, src, thumbEl) {
+        const mainImg = document.getElementById(`showcase-main-img-${id}`);
+        if (mainImg) {
+            mainImg.src = src;
+        }
+        // Aktif sınıfını güncelle
+        const cardEl = document.getElementById(`showcase-${id}`);
+        if (cardEl) {
+            cardEl.querySelectorAll('.showcase-thumb').forEach(t => t.classList.remove('active'));
+        }
+        thumbEl.classList.add('active');
+    };
+
+    // Alıcıyı WhatsApp kanalına yönlendirme
+    window.contactShowcaseAdmin = function(id, brandModel, price) {
+        window.open('https://whatsapp.com/channel/0029VbD8ByE1NCrdySn50k1u', '_blank');
+    };
 }
 
 // ==========================================
@@ -462,6 +600,9 @@ function initAdminPage() {
         document.getElementById('api-token').value = systemConfig.apiToken || '';
         document.getElementById('api-chat-id').value = systemConfig.apiChatId || '';
         document.getElementById('settings-admin-password').value = systemConfig.adminPass || '12345';
+        if (document.getElementById('settings-support-phone')) {
+            document.getElementById('settings-support-phone').value = systemConfig.supportPhone || '';
+        }
 
         // Ayarları Kaydetme
         if (settingsForm) {
@@ -477,7 +618,8 @@ function initAdminPage() {
                     apiInstanceId: document.getElementById('api-instance-id').value.trim(),
                     apiToken: document.getElementById('api-token').value.trim(),
                     apiChatId: document.getElementById('api-chat-id').value.trim(),
-                    adminPass: document.getElementById('settings-admin-password').value.trim() || '12345'
+                    adminPass: document.getElementById('settings-admin-password').value.trim() || '12345',
+                    supportPhone: document.getElementById('settings-support-phone') ? document.getElementById('settings-support-phone').value.trim() : ''
                 };
 
                 try {
@@ -565,9 +707,20 @@ function initAdminPage() {
                         <div class="listing-date"><i class="fa-solid fa-clock"></i> ${dateStr}</div>
                     </div>
                     
-                    <div class="listing-actions" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 8px; margin-top: 15px; width: 100%;">
+                    <!-- Vitrin Kontrol Butonu -->
+                    <div style="margin-top: 12px; width: 100%;">
+                        <button class="btn-listing-action" onclick="toggleShowcase('${id}', ${data.showcase || false})" style="width: 100%; margin: 0; padding: 10px; font-size: 0.85rem; height: 40px; background: ${data.showcase ? 'linear-gradient(135deg, var(--gold-primary), var(--gold-dark))' : 'rgba(255,255,255,0.03)'}; color: ${data.showcase ? '#000000' : '#ffffff'}; border: 1px solid ${data.showcase ? 'var(--gold-primary)' : 'rgba(255,255,255,0.1)'}; border-radius: 10px; cursor: pointer; font-weight: 700; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="${data.showcase ? 'fa-solid fa-star' : 'fa-regular fa-star'}"></i>
+                            ${data.showcase ? 'Vitrinden Kaldır (Siteden Gizle)' : 'Vitrinde Göster (Sitede Yayınla)'}
+                        </button>
+                    </div>
+                    
+                    <div class="listing-actions" style="display: grid; grid-template-columns: 1.2fr 1.3fr 1fr 1fr; gap: 8px; margin-top: 10px; width: 100%;">
                         <button class="btn-listing-action btn-wp-publish" onclick="publishToListing('${id}')" style="margin: 0; padding: 10px 5px; font-size: 0.8rem; height: 38px;">
                             <i class="fa-brands fa-whatsapp"></i> Paylaş
+                        </button>
+                        <button class="btn-listing-action" onclick="openInstagramModal('${id}')" style="margin: 0; padding: 10px 5px; font-size: 0.8rem; height: 38px; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border: none; color: #ffffff; border-radius: 10px; cursor: pointer; font-weight: 700; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                            <i class="fa-brands fa-instagram"></i> Instagram
                         </button>
                         <button class="btn-listing-action" onclick="openEditModal('${id}')" style="margin: 0; padding: 10px 5px; font-size: 0.8rem; height: 38px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: #ffffff; border-radius: 10px; cursor: pointer; font-weight: 700; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 4px;">
                             <i class="fa-solid fa-pen-to-square"></i> Düzenle
@@ -637,6 +790,186 @@ function compressAndGetBase64(file, maxWidth, quality) {
 // ==========================================
 // ADMIN PANEL ACTIONS (GLOBAL WINDOW FUNCTIONS)
 // ==========================================
+
+// Instagram Modalı ve Canvas Çizimi
+window.openInstagramModal = async function(id) {
+    const modal = document.getElementById('instagram-modal');
+    const canvas = document.getElementById('instagram-canvas');
+    if (!modal || !canvas) return;
+
+    try {
+        const doc = await db.collection('listings').doc(id).get();
+        if (!doc.exists) {
+            alert('İlan bulunamadı.');
+            return;
+        }
+        const data = doc.data();
+        const ctx = canvas.getContext('2d');
+
+        // 1. Modalı Aç ve Yükleniyor Göster
+        modal.classList.add('active');
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, 1080, 1080);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '30px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Görsel Hazırlanıyor...', 540, 540);
+
+        // 2. Logo ve Ana Görseli Yükle
+        const logoImg = new Image();
+        logoImg.src = 'logo.jpg';
+
+        const carImg = new Image();
+        // Eğer görsel base64 ise direkt yükler, URL ise CORS sorunu yaşamamak için crossOrigin ayarla
+        if (data.images && data.images.length > 0) {
+            if (!data.images[0].startsWith('data:')) {
+                carImg.crossOrigin = 'anonymous';
+            }
+            carImg.src = data.images[0];
+        } else {
+            carImg.src = 'logo.jpg'; // Görsel yoksa logo çiz
+        }
+
+        // Resimlerin yüklenmesini bekle
+        const waitLoad = (img) => new Promise(res => {
+            if (img.complete) res();
+            else {
+                img.onload = () => res();
+                img.onerror = () => res(); // Hata olsa da devam etsin
+            }
+        });
+
+        await Promise.all([waitLoad(logoImg), waitLoad(carImg)]);
+
+        // 3. Arka plan çiz (Siyah/Koyu Gri Premium Degrade)
+        const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1080);
+        bgGrad.addColorStop(0, '#0D0D0D');
+        bgGrad.addColorStop(0.5, '#141414');
+        bgGrad.addColorStop(1, '#050505');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 1080, 1080);
+
+        // 4. Çift Altın Çerçeve Çiz (Corporate border)
+        ctx.strokeStyle = '#D5B04C';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(30, 30, 1020, 1020);
+        
+        ctx.strokeStyle = '#A78326';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(42, 42, 996, 996);
+
+        // 5. Logo Çiz (Üst Ortaya Daire Çerçeveyle)
+        ctx.save();
+        const logoSize = 130;
+        const logoX = 540 - logoSize/2;
+        const logoY = 70;
+        
+        // Logo için altın halka
+        ctx.strokeStyle = '#D5B04C';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(540, logoY + logoSize/2, logoSize/2 + 5, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Logoyu yuvarla ve çiz
+        ctx.beginPath();
+        ctx.arc(540, logoY + logoSize/2, logoSize/2, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+        ctx.restore();
+
+        // 6. Araç Görselini Çiz (Ortada, Geniş Premium Çerçeveli)
+        const imgX = 115;
+        const imgY = 240;
+        const imgW = 850;
+        const imgH = 480;
+
+        // Görsel çerçevesi (Altın)
+        ctx.strokeStyle = '#D5B04C';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(imgX - 3, imgY - 3, imgW + 6, imgH + 6);
+
+        // Görseli çiz (Kırpıp tam oturtacak şekilde)
+        ctx.drawImage(carImg, imgX, imgY, imgW, imgH);
+
+        // 7. Araç Bilgilerini Yaz
+        // Marka - Model ve Yıl
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 48px Inter, sans-serif';
+        const brandModel = (data.brandModel || 'Araç').toUpperCase();
+        const year = data.year || '';
+        ctx.fillText(`${brandModel} (${year})`, 540, 770);
+
+        // Altın Fiyat Etiketi
+        ctx.fillStyle = '#D5B04C';
+        ctx.font = 'bold 58px Inter, sans-serif';
+        const formattedPrice = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 }).format(data.price || 0);
+        ctx.fillText(formattedPrice, 540, 840);
+
+        // Araç Özellikleri Rozetleri (KM | Yakıt | Vites | Şehir)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.font = '30px Inter, sans-serif';
+        const kmStr = data.km ? `${parseInt(data.km).toLocaleString('tr-TR')} KM` : '-';
+        const fuel = data.fuel || '-';
+        const trans = data.transmission || '-';
+        const city = data.city || '-';
+        ctx.fillText(`${kmStr}  |  ${fuel}  |  ${trans}  |  ${city}`, 540, 900);
+
+        // Hasar / Tramer Bilgisi
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.font = 'italic 24px Inter, sans-serif';
+        const paint = data.paint ? `Boya: ${data.paint}` : 'Boya: -';
+        const replaced = data.replaced ? `Değişen: ${data.replaced}` : 'Değişen: -';
+        const tramer = data.tramer ? `Tramer: ${data.tramer}` : 'Tramer: -';
+        ctx.fillText(`${paint}  •  ${replaced}  •  ${tramer}`, 540, 945);
+
+        // Footer Web Sitesi Linki
+        ctx.fillStyle = '#D5B04C';
+        ctx.font = 'bold 28px Inter, sans-serif';
+        ctx.fillText('satarsin.com.tr', 540, 1010);
+
+        // İndirme Butonu Eventi Tanımla (Eski dinleyicileri kaldırarak)
+        const downloadBtn = document.getElementById('download-instagram-btn');
+        const newDownloadBtn = downloadBtn.cloneNode(true);
+        downloadBtn.parentNode.replaceChild(newDownloadBtn, downloadBtn);
+
+        newDownloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = `${brandModel.replace(/\s+/g, '-').toLowerCase()}-instagram.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+
+    } catch (error) {
+        console.error("Instagram görseli oluşturulurken hata:", error);
+        alert("Görsel oluşturulurken bir hata meydana geldi: " + error.message);
+    }
+};
+
+// Kapatma Eventleri
+document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('close-instagram-modal');
+    const modal = document.getElementById('instagram-modal');
+    if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+    }
+});
+
+// Vitrin Durumunu Değiştir
+window.toggleShowcase = async function(id, currentStatus) {
+    try {
+        await db.collection('listings').doc(id).update({
+            showcase: !currentStatus
+        });
+        alert(currentStatus ? 'İlan vitrinden kaldırıldı.' : 'İlan vitrine eklendi ve sitede yayına alındı.');
+    } catch (error) {
+        console.error("Vitrin güncelleme hatası:", error);
+        alert("Vitrin durumu güncellenirken hata oluştu: " + error.message);
+    }
+};
 
 // İlan Düzenleme Modalı Aç
 window.openEditModal = async function(id) {

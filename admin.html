@@ -96,6 +96,12 @@
                             <label class="form-label" for="settings-admin-password">Panel Giriş Şifresi</label>
                             <input type="password" id="settings-admin-password" class="form-control" placeholder="Yeni Giriş Şifresi">
                         </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="settings-support-phone">Vitrin Destek Numarası (WhatsApp)</label>
+                            <input type="tel" id="settings-support-phone" class="form-control" placeholder="Örn: 905xxxxxxxxx" style="font-family: monospace;">
+                            <small style="color: rgba(255,255,255,0.4); font-size: 0.75rem;">Sitede vitrindeki araçlar için "Bilgi Al" tıklandığında yönlendirilecek WhatsApp hattı.</small>
+                        </div>
                         
                         <button type="submit" class="btn-settings-save" style="width: 100%; margin-top: 10px;">Ayarları Kaydet</button>
                     </form>
@@ -214,6 +220,25 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Instagram Post Hazırlama Modalı -->
+    <div id="instagram-modal" class="modal-overlay">
+        <div class="modal-container" style="max-width: 600px; text-align: center;">
+            <button id="close-instagram-modal" class="modal-close-btn">&times;</button>
+            <h3 class="modal-title"><i class="fa-brands fa-instagram" style="color: #D5B04C;"></i> Instagram Post Tasarımcısı</h3>
+            <p class="modal-subtitle">Kurumsal çerçeveli ve araç bilgileri içeren Instagram görseli başarıyla oluşturuldu.</p>
+            
+            <div style="background: rgba(0,0,0,0.4); border: 1px dashed rgba(213, 176, 76, 0.3); padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                <canvas id="instagram-canvas" width="1080" height="1080" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); background: #000;"></canvas>
+            </div>
+
+            <div class="form-actions" style="display: flex; gap: 10px; justify-content: center;">
+                <button id="download-instagram-btn" class="btn-form-submit" style="width: auto; padding: 12px 24px; font-weight: 700; background: linear-gradient(135deg, #D5B04C, #A78326); color: #000000; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-download"></i> Görseli İndir (1080x1080)
+                </button>
+            </div>
         </div>
     </div>
 

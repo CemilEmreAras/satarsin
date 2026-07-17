@@ -1644,4 +1644,208 @@ body {
     }
 }
 
+/* ==========================================
+   VITRIN (SHOWCASE) STYLES
+   ========================================== */
+.showcase-section {
+    padding: 100px 0;
+    position: relative;
+    background: radial-gradient(circle at center, rgba(213, 176, 76, 0.03) 0%, rgba(0, 0, 0, 0) 70%);
+}
+
+.showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
+}
+
+.showcase-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 24px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+}
+
+.showcase-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(213, 176, 76, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(213, 176, 76, 0.05);
+}
+
+.showcase-card-img-wrapper {
+    position: relative;
+    width: 100%;
+    height: 230px;
+    overflow: hidden;
+    background: #000;
+}
+
+.showcase-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.showcase-card:hover .showcase-card-img {
+    transform: scale(1.05);
+}
+
+.showcase-card-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(213, 176, 76, 0.4);
+    color: var(--gold-primary);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.showcase-card-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.showcase-card-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 4px;
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.3px;
+}
+
+.showcase-card-meta {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.showcase-card-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 15px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.01);
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.showcase-detail-item {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.showcase-detail-item i {
+    color: var(--gold-primary);
+    font-size: 0.85rem;
+    width: 14px;
+}
+
+.showcase-card-desc {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.4;
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    height: 38px;
+}
+
+.showcase-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.showcase-card-price {
+    font-size: 1.45rem;
+    font-weight: 900;
+    color: var(--gold-primary);
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.5px;
+}
+
+.showcase-card-btn {
+    background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+    color: #000000;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Outfit', sans-serif;
+}
+
+.showcase-card-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(213, 176, 76, 0.4);
+}
+
+/* Vitrin Görsel Galerisi (Küçük resimler) */
+.showcase-gallery-thumbs {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    display: flex;
+    gap: 5px;
+    z-index: 2;
+}
+
+.showcase-thumb {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    overflow: hidden;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.showcase-thumb.active, .showcase-thumb:hover {
+    opacity: 1;
+    border-color: var(--gold-primary);
+    transform: scale(1.05);
+}
+
+.showcase-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 
