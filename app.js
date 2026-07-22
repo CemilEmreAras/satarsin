@@ -19,6 +19,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
+    // DARK / LIGHT THEME TOGGLE LOGIC
+    // ==========================================
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const savedTheme = localStorage.getItem('theme');
+    
+    // Uygulama açılışında kaydedilmiş temayı yükle
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        if (themeToggleBtn) {
+            themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        }
+    }
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            
+            // Icon ve localStorage güncelle
+            themeToggleBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        });
+    }
+
+    // ==========================================
     // DETECT PAGE TYPE
     // ==========================================
     const isAdminPage = document.body.classList.contains('admin-page');

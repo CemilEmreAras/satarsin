@@ -9,6 +9,7 @@
 :root {
     --bg-color: #030406;
     --card-bg: rgba(12, 14, 18, 0.75);
+    --card-border: rgba(255, 255, 255, 0.05);
     --text-primary: #ffffff;
     --text-secondary: #9ea4ae;
     --gold-primary: #d5b04c;
@@ -18,6 +19,185 @@
     --whatsapp-color: #25d366;
     --instagram-color: #e1306c;
     --transition-speed: 0.3s;
+    --navbar-bg: rgba(3, 4, 6, 0.8);
+    --nav-border: rgba(255, 255, 255, 0.03);
+    --input-bg: #090b0e;
+    --input-border: rgba(255, 255, 255, 0.1);
+    --input-text: #ffffff;
+    --modal-bg: #0b0d11;
+}
+
+/* Light Theme Variables */
+body.light-theme {
+    --bg-color: #f4f6f9;
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --card-border: rgba(0, 0, 0, 0.08);
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --gold-primary: #b8860b;
+    --gold-dark: #966d09;
+    --gold-glow: rgba(184, 134, 11, 0.15);
+    --gold-gradient: linear-gradient(135deg, #d4af37 0%, #b8860b 50%, #8b6508 100%);
+    --navbar-bg: rgba(255, 255, 255, 0.85);
+    --nav-border: rgba(0, 0, 0, 0.06);
+    --input-bg: #ffffff;
+    --input-border: rgba(0, 0, 0, 0.15);
+    --input-text: #111827;
+    --modal-bg: #ffffff;
+}
+
+body.light-theme .bg-ambient {
+    background: radial-gradient(circle, rgba(184, 134, 11, 0.08) 0%, rgba(244, 246, 249, 0) 70%);
+}
+
+body.light-theme .navbar,
+body.light-theme .admin-header {
+    background: var(--navbar-bg);
+    border-bottom: 1px solid var(--nav-border);
+}
+
+body.light-theme .brand-text {
+    color: #111827;
+}
+
+body.light-theme .nav-link {
+    color: #374151;
+}
+
+body.light-theme .nav-link:hover {
+    color: var(--gold-primary);
+}
+
+body.light-theme .btn-nav-whatsapp {
+    color: #111827;
+    background: rgba(37, 211, 102, 0.12);
+    border-color: rgba(37, 211, 102, 0.3);
+}
+
+body.light-theme .main-heading,
+body.light-theme h1, 
+body.light-theme h2, 
+body.light-theme h3, 
+body.light-theme h4, 
+body.light-theme h5, 
+body.light-theme h6 {
+    color: #111827;
+}
+
+body.light-theme .sub-heading,
+body.light-theme p,
+body.light-theme span {
+    color: inherit;
+}
+
+body.light-theme .form-control {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--input-text);
+}
+
+body.light-theme .showcase-card {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .showcase-card-title {
+    color: #111827;
+}
+
+body.light-theme .showcase-card-meta {
+    color: #6b7280;
+}
+
+body.light-theme .showcase-card-details-grid {
+    background: #f9fafb;
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .showcase-detail-item {
+    color: #374151;
+}
+
+body.light-theme .showcase-card-desc {
+    color: #4b5563;
+}
+
+body.light-theme .section-title {
+    color: #111827 !important;
+}
+
+body.light-theme .section-subtitle {
+    color: #6b7280 !important;
+}
+
+body.light-theme .banner-glow-card {
+    background: #ffffff;
+    border-color: rgba(184, 134, 11, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .btn-instagram-secondary {
+    background-color: #f3f4f6;
+    color: #111827;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .btn-instagram-secondary:hover {
+    background-color: #e5e7eb;
+    color: var(--gold-primary);
+}
+
+body.light-theme .site-footer {
+    background: #ffffff;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+body.light-theme .brand-white {
+    color: #111827;
+}
+
+body.light-theme .footer-copyright {
+    color: #6b7280;
+}
+
+body.light-theme .modal-content,
+body.light-theme .auth-container,
+body.light-theme .detail-card,
+body.light-theme .listing-card,
+body.light-theme .step-card,
+body.light-theme .feature-card {
+    background: var(--modal-bg);
+    border-color: var(--card-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+body.light-theme .theme-toggle-btn {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.12);
+    color: #111827;
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.08);
+    border-color: var(--gold-primary);
+    color: var(--gold-primary);
 }
 
 body {
