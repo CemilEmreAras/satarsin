@@ -307,6 +307,12 @@ body {
     color: var(--gold-primary);
 }
 
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
 .nav-links {
     display: flex;
     align-items: center;
@@ -1147,8 +1153,18 @@ body.light-theme .designer-link:hover {
         padding: 0 20px;
     }
     
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
     .nav-links {
         display: none; /* Hide desktop links on small mobile screens */
+    }
+
+    .theme-toggle-btn {
+        display: flex !important;
     }
     
     .page-container {
